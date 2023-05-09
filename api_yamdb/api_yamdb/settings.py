@@ -29,7 +29,7 @@ INSTALLED_APPS = [
     "api.apps.ApiConfig",
     "reviews.apps.ReviewsConfig",
     "core.apps.CoreConfig",
-    'djoser',
+    "djoser",
 ]
 
 MIDDLEWARE = [
@@ -110,23 +110,6 @@ USE_TZ = True
 STATIC_URL = "/static/"
 
 STATICFILES_DIRS = ((BASE_DIR / "static/"),)
-
-REST_FRAMEWORK = {}
-
-REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny',
-    ],
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ],
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-}
-
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=14),
-    'AUTH_HEADER_TYPES': ('Bearer',),
-}
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
