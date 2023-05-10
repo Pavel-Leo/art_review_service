@@ -1,3 +1,5 @@
+import re
+
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 
@@ -52,8 +54,23 @@ class TitleSerializer(serializers.ModelSerializer):
 class CustomUserSerializer(serializers.ModelSerializer):
     """Сериализатор пользователя"""
 
-    email = serializers.EmailField(required=True)
+    email = serializers.EmailField(required=True,)
     username = serializers.CharField(required=True, max_length=150)
+
+    def validate_username(self, value):
+        if value == "me":
+            raise serializers.ValidationError("Нельзя использовать имя 'me'")
+        elif CustomUser.objects.filter(username=value).exists():
+            raise serializers.ValidationError(
+                "Пользователь с таким именем уже существует"
+            )
+        elif not re.match(r"^[\w.@+-]+$", value):
+            error = (
+                "Имя пользователя должно содержать только буквы, цифры и "
+                "символы '@', '.', '+', '-'"
+            )
+            raise serializers.ValidationError(error)
+        return value
 
     class Meta:
         model = CustomUser
