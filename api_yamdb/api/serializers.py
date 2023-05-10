@@ -53,7 +53,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
     """Сериализатор пользователя"""
 
     email = serializers.EmailField(required=True)
-    username = serializers.CharField(required=True)
+    username = serializers.CharField(required=True, max_length=150)
 
     class Meta:
         model = CustomUser
