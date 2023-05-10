@@ -55,25 +55,25 @@ class CustomUserViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminUser,)
     http_method_names = ["get", "post", "patch", "delete"]
 
-    # @action(
-    #     detail=False,
-    #     methods=["get", "patch"],
-    #     url_path="me",
-    #     permission_classes=[IsAuthenticated],
-    # )
-    # def me(self, request):
-    #     serializer = CustomUserSerializer(request.user)
-    #     if request.method == "PATCH":
-    #         serializer = CustomUserSerializer(
-    #             request.user, data=request.data, partial=True,
-    #         )
-    #         if not serializer.is_valid():
-    #             return Response(
-    #                 serializer.errors, status=status.HTTP_400_BAD_REQUEST,
-    #             )
-    #         serializer.save()
-    #         return Response(serializer.data, status=status.HTTP_200_OK)
-    #     return Response(serializer.data, status=status.HTTP_200_OK)
+    @action(
+        detail=False,
+        methods=["get", "patch"],
+        url_path="me",
+        permission_classes=[IsAuthenticated],
+    )
+    def me(self, request):
+        serializer = CustomUserSerializer(request.user)
+        if request.method == "PATCH":
+            serializer = CustomUserSerializer(
+                request.user, data=request.data, partial=True,
+            )
+            if not serializer.is_valid():
+                return Response(
+                    serializer.errors, status=status.HTTP_400_BAD_REQUEST,
+                )
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class Signup(APIView):
