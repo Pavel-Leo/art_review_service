@@ -54,7 +54,7 @@ class TitleSerializer(serializers.ModelSerializer):
 class CustomUserSerializer(serializers.ModelSerializer):
     """Сериализатор пользователя"""
 
-    email = serializers.EmailField(required=True,)
+    email = serializers.EmailField(required=True, max_length=254)
     username = serializers.CharField(required=True, max_length=150)
 
     def validate_username(self, value):
