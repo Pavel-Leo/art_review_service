@@ -130,3 +130,11 @@ AUTH_USER_MODEL = "core.CustomUser"
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
+
+# Constants
+
+CHOISES = [
+    ("user", "User"),
+    ("moderator", "Moderator"),
+    ("admin", "Admin"),
+]
