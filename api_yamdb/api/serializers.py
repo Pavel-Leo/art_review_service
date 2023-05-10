@@ -28,7 +28,7 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-    author = SlugRelatedField(slug_field="username", read_only=True)
+    author = SlugRelatedField(slug_field="username", read_only=True,)
 
     class Meta:
         read_only_fields = ("pub_date", "author", "id")
@@ -88,8 +88,8 @@ class CustomUserSerializer(serializers.ModelSerializer):
 class TokenSerializer(serializers.Serializer):
     """Сериализатор токена"""
 
-    username = serializers.CharField(required=True)
-    confirmation_code = serializers.CharField(required=True)
+    username = serializers.CharField(required=True, max_length=150)
+    confirmation_code = serializers.CharField(required=True, )
 
     class Meta:
         fields = ("username", "confirmation_code")
@@ -113,3 +113,18 @@ class SignupSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ("username", "email")
+
+    def validate_username(self, value):
+        if value == "me":
+            raise serializers.ValidationError("Нельзя использовать имя 'me'")
+        elif CustomUser.objects.filter(username=value).exists():
+            raise serializers.ValidationError(
+                "Пользователь с таким именем уже существует"
+            )
+        elif not re.match(r"^[\w.@+-]+$", value):
+            error = (
+                "Имя пользователя должно содержать только буквы, цифры и "
+                "символы '@', '.', '+', '-'"
+            )
+            raise serializers.ValidationError(error)
+        return value
