@@ -38,7 +38,7 @@ class CustomUser(AbstractUser):
     class Meta:
         verbose_name = "Пользователь"
         verbose_name_plural = "Пользователи"
-
+    
     def is_admin(self):
         return self.is_superuser or self.role == CHOISES[2][0]
 

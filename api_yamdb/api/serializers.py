@@ -90,8 +90,8 @@ class TokenSerializer(serializers.Serializer):
 class SignupSerializer(serializers.ModelSerializer):
     """Сериализатор регистрации"""
 
-    username = serializers.CharField(required=True)
-    email = serializers.EmailField(required=True)
+    username = serializers.CharField(required=True, max_length=150)
+    email = serializers.EmailField(required=True, max_length=254)
 
     class Meta:
         model = CustomUser
