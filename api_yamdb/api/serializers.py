@@ -131,8 +131,6 @@ class CustomUserSerializer(serializers.ModelSerializer):
             "bio",
             "role",
         )
-        # read_only_fields = ("role",) с ним не получается и без него не
-        # получается оставил чтобы не забыть.
 
 
 class TokenSerializer(serializers.Serializer):
