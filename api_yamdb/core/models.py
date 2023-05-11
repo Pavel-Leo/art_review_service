@@ -5,6 +5,8 @@ from django.db import models
 
 
 class CustomUser(AbstractUser):
+    """Модель пользователя."""
+
     email = models.EmailField(
         "адрес электронной почты",
         max_length=254,

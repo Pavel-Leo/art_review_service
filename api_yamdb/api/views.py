@@ -2,14 +2,14 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
-from rest_framework.filters import SearchFilter
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
+from rest_framework.filters import SearchFilter
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import AccessToken
-from rest_framework.pagination import PageNumberPagination
 
 from api.serializers import (
     CategorySerializer,
@@ -53,7 +53,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 
 class CustomUserViewSet(viewsets.ModelViewSet):
-    """Вьюсет информации о пользователе"""
+    """Вьюсет информации о пользователе."""
 
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
@@ -79,11 +79,15 @@ class CustomUserViewSet(viewsets.ModelViewSet):
         if request.method == "PATCH":
             if request.user.is_admin or request.user.is_superuser:
                 serializer = CustomUserSerializer(
-                    request.user, data=request.data, partial=True
+                    request.user,
+                    data=request.data,
+                    partial=True,
                 )
             else:
                 serializer = NotAdminUserSerializer(
-                    request.user, data=request.data, partial=True
+                    request.user,
+                    data=request.data,
+                    partial=True,
                 )
             serializer.is_valid(raise_exception=True)
             serializer.save()
@@ -124,7 +128,7 @@ class Signup(APIView):
 
 
 class Token(APIView):
-    """Получение токена"""
+    """Получение токена."""
 
     permission_classes = (AllowAny,)
 
@@ -141,5 +145,5 @@ class Token(APIView):
             return Response({"token": str(token)}, status=status.HTTP_200_OK)
         else:
             return Response(
-                "Неверный код", status=status.HTTP_400_BAD_REQUEST
+                "Неверный код", status=status.HTTP_400_BAD_REQUEST,
             )

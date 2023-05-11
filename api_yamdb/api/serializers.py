@@ -1,9 +1,8 @@
 import re
 
+from django.core.exceptions import ValidationError
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
-from django.core.exceptions import ValidationError
-
 from rest_framework.validators import UniqueValidator
 
 from core.models import Category, Comment, CustomUser, Genre, Review, Title
@@ -60,7 +59,6 @@ class TitleSerializer(serializers.ModelSerializer):
 class CustomUserSerializer(serializers.ModelSerializer):
     """Сериализатор пользователя"""
 
-    # email = serializers.EmailField(required=True, max_length=254)
     username = serializers.CharField(
         required=True,
         max_length=150,
@@ -70,11 +68,12 @@ class CustomUserSerializer(serializers.ModelSerializer):
     )
 
     def validate_username(self, value):
+        """Проверка имени пользователя на валидность данных."""
         if value.lower() == "me":
             raise ValidationError("Нельзя использовать имя 'me или ME'")
         elif CustomUser.objects.filter(username=value).exists():
             raise ValidationError(
-                "Пользователь с таким именем уже существует"
+                "Пользователь с таким именем уже существует",
             )
         elif not re.match(r"^[\w.@+-]+\Z", value):
             error = (
@@ -94,15 +93,12 @@ class CustomUserSerializer(serializers.ModelSerializer):
             "bio",
             "role",
         )
-        # read_only_fields = ("role",) с ним не получается и без него не
-        # получается оставил чтобы не забыть.
 
 
 class NotAdminUserSerializer(serializers.ModelSerializer):
     """Сериализатор для пользователя с обязательным указанием роли."""
 
     username = serializers.CharField(required=True, max_length=150)
-    # email = serializers.EmailField(required=True, max_length=254)
 
     class Meta:
         model = CustomUser
@@ -117,11 +113,12 @@ class NotAdminUserSerializer(serializers.ModelSerializer):
         read_only_fields = ("role",)
 
     def validate_username(self, value):
+        """Проверка имени пользователя на валидность данных."""
         if value.lower() == "me":
             raise ValidationError("Нельзя использовать имя 'me или ME'")
         elif CustomUser.objects.filter(username=value).exists():
             raise ValidationError(
-                "Пользователь с таким именем уже существует"
+                "Пользователь с таким именем уже существует",
             )
         elif not re.match(r"^[\w.@+-]+\Z", value):
             error = (
@@ -133,7 +130,7 @@ class NotAdminUserSerializer(serializers.ModelSerializer):
 
 
 class TokenSerializer(serializers.Serializer):
-    """Сериализатор токена"""
+    """Сериализатор токена."""
 
     username = serializers.CharField(required=True, max_length=150)
     confirmation_code = serializers.CharField(required=True)
@@ -144,7 +141,7 @@ class TokenSerializer(serializers.Serializer):
 
 
 class SignupSerializer(serializers.ModelSerializer):
-    """Сериализатор регистрации"""
+    """Сериализатор регистрации пользователя."""
 
     username = serializers.CharField(required=True, max_length=150)
     email = serializers.EmailField(required=True, max_length=254)
@@ -154,12 +151,15 @@ class SignupSerializer(serializers.ModelSerializer):
         fields = ("username", "email")
 
     def validate_username(self, value):
+        """Проверка имени пользователя на валидность данных."""
         if value.lower() == "me":
             raise serializers.ValidationError("Нельзя использовать имя 'me'")
-        elif not re.match(r"^[\w.@+-]+$", value):
+        elif not re.match(r"^[\w.@+-]+\Z", value):
             error = (
                 "Имя пользователя должно содержать только буквы, цифры и "
                 "символы '@', '.', '+', '-'"
             )
             raise serializers.ValidationError(error)
         return value
+
+    # проверка
