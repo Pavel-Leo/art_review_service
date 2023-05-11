@@ -2,20 +2,28 @@ from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
+import re
+
+from rest_framework import serializers
+from rest_framework.relations import SlugRelatedField
 
 from core.models import Category, Comment, CustomUser, Genre, Review, Title
 
 
 class CommentSerializer(serializers.ModelSerializer):
     author = SlugRelatedField(slug_field="username", read_only=True)
-    review = serializers.SlugRelatedField(
-        slug_field="text",
-        read_only=True
-    )
+    # review = serializers.SlugRelatedField(
+    #     slug_field="text",
+    #     read_only=True
+    # )
+
+    # class Meta:
+    #     read_only_fields = ("id", "author", "pub_date", "review")
+    #     fields = ("text", "author", "pub_date", "id", "rewiew")
 
     class Meta:
-        read_only_fields = ("id", "author", "pub_date", "review")
-        fields = ("text", "author", "pub_date", "id", "rewiew")
+        read_only_fields = ("id", "author", "pub_date")
+        fields = ("text", "author", "pub_date", "id")
         model = Comment
 
 
@@ -83,8 +91,23 @@ class TitleSerializer(serializers.ModelSerializer):
 class CustomUserSerializer(serializers.ModelSerializer):
     """Сериализатор пользователя"""
 
-    email = serializers.EmailField(required=True)
-    username = serializers.CharField(required=True)
+    email = serializers.EmailField(required=True, max_length=254)
+    username = serializers.CharField(required=True, max_length=150)
+
+    def validate_username(self, value):
+        if value.lower() == "me":
+            raise serializers.ValidationError("Нельзя использовать имя 'me'")
+        elif CustomUser.objects.filter(username=value).exists():
+            raise serializers.ValidationError(
+                "Пользователь с таким именем уже существует"
+            )
+        elif not re.match(r"^[\w.@+-]+$", value):
+            error = (
+                "Имя пользователя должно содержать только буквы, цифры и "
+                "символы '@', '.', '+', '-'"
+            )
+            raise serializers.ValidationError(error)
+        return value
 
     class Meta:
         model = CustomUser
@@ -96,13 +119,14 @@ class CustomUserSerializer(serializers.ModelSerializer):
             "bio",
             "role",
         )
-        read_only_fields = ("role",)
+        # read_only_fields = ("role",) с ним не получается и без него не
+        # получается оставил чтобы не забыть. 
 
 
 class TokenSerializer(serializers.Serializer):
     """Сериализатор токена"""
 
-    username = serializers.CharField(required=True)
+    username = serializers.CharField(required=True, max_length=150)
     confirmation_code = serializers.CharField(required=True)
 
     class Meta:
@@ -128,15 +152,13 @@ class SignupSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = ("username", "email")
 
-
-class TitleReadSerializer(serializers.ModelSerializer):
-    category = CategorySerializer(read_only=True)
-    genre = GenreSerializer(
-        read_only=True,
-        many=True
-    )
-    rating = serializers.IntegerField(read_only=True)
-
-    class Meta:
-        fields = "__all__"
-        model = Title
+    def validate_username(self, value):
+        if value.lower() == "me":
+            raise serializers.ValidationError("Нельзя использовать имя 'me'")
+        elif not re.match(r"^[\w.@+-]+$", value):
+            error = (
+                "Имя пользователя должно содержать только буквы, цифры и "
+                "символы '@', '.', '+', '-'"
+            )
+            raise serializers.ValidationError(error)
+        return value
