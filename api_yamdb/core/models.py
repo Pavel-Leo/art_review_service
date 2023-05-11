@@ -56,6 +56,10 @@ class Category(models.Model):
         max_length=50,
     )
 
+    class Meta:
+        verbose_name = 'категория'
+        verbose_name_plural = 'категории'
+
     def __str__(self) -> str:
         return self.name
 
@@ -67,6 +71,10 @@ class Genre(models.Model):
         unique=True,
         max_length=50,
     )
+
+    class Meta:
+        verbose_name = 'жанр'
+        verbose_name_plural = 'жанры'
 
     def __str__(self) -> str:
         return self.name
@@ -108,10 +116,15 @@ class Review(models.Model):
         on_delete=models.CASCADE,
         related_name="reviews",
     )
-    score = models.IntegerField(
+    title = models.ForeignKey(
+        Title,
+        on_delete=models.CASCADE,
+        related_name="reviews",
+    )
+    score = models.PositiveSmallIntegerField(
         validators=[
             MaxValueValidator(10),
-            MinValueValidator(1),
+            MinValueValidator(0),
         ],
     )
     pub_date = models.DateTimeField(
@@ -119,6 +132,18 @@ class Review(models.Model):
         auto_now_add=True,
         blank=True,
     )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["title", "author"],
+                name='unique review'
+            ),
+        ]
+        ordering = ["pub_date"]
+
+    def __str__(self):
+        return self.text
 
 
 class Comment(models.Model):
