@@ -1,12 +1,11 @@
-from rest_framework import serializers
-from rest_framework.relations import SlugRelatedField
-from rest_framework.exceptions import ValidationError
-from rest_framework.generics import get_object_or_404
 import re
 
+
+from rest_framework.relations import SlugRelatedField
+from rest_framework.exceptions import ValidationError
+# from rest_framework.generics import get_object_or_404
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
-
 from core.models import Category, Comment, CustomUser, Genre, Review, Title
 
 
@@ -59,7 +58,7 @@ class ReviewSerializer(serializers.ModelSerializer):
     def validate(self, data):
         request = self.context["request"]
         title_id = self.context["view"].kwarg.get("title_id")
-        title = get_object_or_404(Title, pk=title_id)
+        # title = get_object_or_404(Title, pk=title_id)
         if request.method == "Post":
             if Review.objects.filter(
                 title=title, author=request.user
@@ -85,6 +84,19 @@ class TitleSerializer(serializers.ModelSerializer):
             "genre",
             "category",
         )
+        model = Title
+
+
+class TitleReadSerializer(serializers.ModelSerializer):
+    category = CategorySerializer(read_only=True)
+    genre = GenreSerializer(
+        read_only=True,
+        many=True
+    )
+    rating = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        fields = "__all__"
         model = Title
 
 
@@ -120,7 +132,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
             "role",
         )
         # read_only_fields = ("role",) с ним не получается и без него не
-        # получается оставил чтобы не забыть. 
+        # получается оставил чтобы не забыть.
 
 
 class TokenSerializer(serializers.Serializer):
