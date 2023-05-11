@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
-from rest_framework.generics import get_object_or_404
 from rest_framework.exceptions import ValidationError
+from rest_framework.generics import get_object_or_404
 
 from core.models import Category, Comment, CustomUser, Genre, Review, Title
 
@@ -9,13 +9,13 @@ from core.models import Category, Comment, CustomUser, Genre, Review, Title
 class CommentSerializer(serializers.ModelSerializer):
     author = SlugRelatedField(slug_field="username", read_only=True)
     review = serializers.SlugRelatedField(
-        slug_field="username",
+        slug_field="text",
         read_only=True
     )
 
     class Meta:
-        read_only_fields = ("id", "author", "pub_date")
-        fields = ("text", "author", "pub_date", "id")
+        read_only_fields = ("id", "author", "pub_date", "review")
+        fields = ("text", "author", "pub_date", "id", "rewiew")
         model = Comment
 
 
@@ -127,3 +127,16 @@ class SignupSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ("username", "email")
+
+
+class TitleReadSerializer(serializers.ModelSerializer):
+    category = CategorySerializer(read_only=True)
+    genre = GenreSerializer(
+        read_only=True,
+        many=True
+    )
+    rating = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        fields = "__all__"
+        model = Title

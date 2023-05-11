@@ -110,15 +110,15 @@ class Review(models.Model):
         on_delete=models.CASCADE,
         related_name='reviews',
     )
-    score = models.IntegerField(
+    score = models.PositiveSmallIntegerField(
         validators=[
             MaxValueValidator(10),
-            MinValueValidator(1),
+            MinValueValidator(0),
         ],
     )
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True,
                                     blank=True)
-    
+
     class Meta:
         constraints = [
             models.UniqueConstraint(
@@ -127,7 +127,7 @@ class Review(models.Model):
             ),
         ]
         ordering = ('pub_date')
-    
+
     def __str__(self):
         return self.text
 
