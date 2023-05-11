@@ -113,7 +113,7 @@ class Signup(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
         user = get_object_or_404(
-            CustomUser, username=serializer.data["username"]
+            CustomUser, username=serializer.data["username"],
         )
         confirmation_code = default_token_generator.make_token(user)
         email = serializer.data["email"]
@@ -136,10 +136,10 @@ class Token(APIView):
         serializer = TokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = get_object_or_404(
-            CustomUser, username=serializer.data["username"]
+            CustomUser, username=serializer.data["username"],
         )
         if default_token_generator.check_token(
-            user, serializer.data["confirmation_code"]
+            user, serializer.data["confirmation_code"],
         ):
             token = AccessToken.for_user(user)
             return Response({"token": str(token)}, status=status.HTTP_200_OK)
