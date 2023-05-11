@@ -46,7 +46,6 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 
 class CommentViewSet(viewsets.ModelViewSet):
-    # queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     permission_classes = (
         IsAdminAuthorModeratorOrReadOnly,
@@ -66,7 +65,6 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
-    # queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     permission_classes = (
         IsAdminAuthorModeratorOrReadOnly,
