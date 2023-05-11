@@ -31,7 +31,6 @@ INSTALLED_APPS = [
     "api.apps.ApiConfig",
     "reviews.apps.ReviewsConfig",
     "core.apps.CoreConfig",
-    "djoser",
 ]
 
 MIDDLEWARE = [
@@ -126,6 +125,8 @@ SIMPLE_JWT = {
 }
 
 AUTH_USER_MODEL = "core.CustomUser"
+
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 

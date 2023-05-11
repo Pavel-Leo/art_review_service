@@ -9,11 +9,13 @@ class CustomUser(AbstractUser):
         "адрес электронной почты",
         max_length=254,
         unique=True,
+        null=False,
     )
     username = models.CharField(
         "имя пользователя. Не более 150 символов. Только буквы, цифры и знаки @/./+/-/_",
         max_length=150,
         unique=True,
+        null=False,
     )
     first_name = models.CharField("имя", max_length=150, blank=True, null=True)
     last_name = models.CharField(
@@ -37,9 +39,11 @@ class CustomUser(AbstractUser):
         verbose_name = "пользователь"
         verbose_name_plural = "Пользователи"
 
+    @property
     def is_admin(self):
         return self.is_superuser or self.role == settings.CHOISES[2][0]
 
+    @property
     def is_moderator(self):
         return self.role == settings.CHOISES[1][0]
 

@@ -58,7 +58,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
     username = serializers.CharField(required=True, max_length=150)
 
     def validate_username(self, value):
-        if value == "me":
+        if value.lower() == "me":
             raise serializers.ValidationError("Нельзя использовать имя 'me'")
         elif CustomUser.objects.filter(username=value).exists():
             raise serializers.ValidationError(
@@ -82,26 +82,19 @@ class CustomUserSerializer(serializers.ModelSerializer):
             "bio",
             "role",
         )
-        read_only_fields = ("role",)
+        # read_only_fields = ("role",) с ним не получается и без него не
+        # получается оставил чтобы не забыть. 
 
 
 class TokenSerializer(serializers.Serializer):
     """Сериализатор токена"""
 
     username = serializers.CharField(required=True, max_length=150)
-    confirmation_code = serializers.CharField(required=True, )
+    confirmation_code = serializers.CharField(required=True)
 
     class Meta:
         fields = ("username", "confirmation_code")
         model = CustomUser
-
-    def validate(self, data):
-        username = data.get("username")
-        confirmation_code = data.get("confirmation_code")
-
-        if not username or not confirmation_code:
-            raise serializers.ValidationError("Некорректные данные")
-        return data
 
 
 class SignupSerializer(serializers.ModelSerializer):
@@ -115,12 +108,8 @@ class SignupSerializer(serializers.ModelSerializer):
         fields = ("username", "email")
 
     def validate_username(self, value):
-        if value == "me":
+        if value.lower() == "me":
             raise serializers.ValidationError("Нельзя использовать имя 'me'")
-        elif CustomUser.objects.filter(username=value).exists():
-            raise serializers.ValidationError(
-                "Пользователь с таким именем уже существует"
-            )
         elif not re.match(r"^[\w.@+-]+$", value):
             error = (
                 "Имя пользователя должно содержать только буквы, цифры и "
