@@ -4,11 +4,11 @@ from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import AccessToken
+from rest_framework.pagination import PageNumberPagination
 
 from api.serializers import (
     CategorySerializer,
@@ -56,6 +56,7 @@ class CustomUserViewSet(viewsets.ModelViewSet):
 
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
+    pagination_class = PageNumberPagination
     permission_classes = [
         IsAdminPermission,
     ]
