@@ -1,53 +1,45 @@
 import re
 
 
-from rest_framework.relations import SlugRelatedField
 from rest_framework.exceptions import ValidationError
-# from rest_framework.generics import get_object_or_404
-
-from rest_framework.relations import SlugRelatedField
-from rest_framework.exceptions import ValidationError
-from django.core.exceptions import ValidationError
-# from rest_framework.generics import get_object_or_404
+from rest_framework.generics import get_object_or_404
 from rest_framework import serializers
-from rest_framework.relations import SlugRelatedField
 from rest_framework.validators import UniqueValidator
 
 from core.models import Category, Comment, CustomUser, Genre, Review, Title
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    author = SlugRelatedField(slug_field="username", read_only=True)
-    # review = serializers.SlugRelatedField(
-    #     slug_field="text",
-    #     read_only=True
-    # )
-
-    # class Meta:
-    #     read_only_fields = ("id", "author", "pub_date", "review")
-    #     fields = ("text", "author", "pub_date", "id", "rewiew")
+    """Сериализатор комментариев."""
+    author = serializers.SlugRelatedField(slug_field="username", read_only=True)
+    review = serializers.SlugRelatedField(
+        slug_field="text",
+        read_only=True
+    )
 
     class Meta:
-        read_only_fields = ("id", "author", "pub_date")
-        fields = ("text", "author", "pub_date", "id")
+        fields = ("text", "author", "pub_date", "id", "review")
         model = Comment
 
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
-        read_only_field = ("id",)
-        fields = ("id", "name", "slug")
+        exclude = ("id",)
+        lookup_field = "slug"
         model = Category
+        extra_kwargs = {"url": {"lookup_field": "slug"}}
 
 
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = ("name", "slug")
+        exclude = ("id",)
+        lookup_field = "slug"
         model = Genre
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-    author = SlugRelatedField(
+    """Сериализатор отзывов """
+    author = serializers.SlugRelatedField(
         slug_field="username",
         read_only=True,
         default=serializers.CurrentUserDefault(),
@@ -66,7 +58,7 @@ class ReviewSerializer(serializers.ModelSerializer):
     def validate(self, data):
         request = self.context["request"]
         title_id = self.context["view"].kwarg.get("title_id")
-        # title = get_object_or_404(Title, pk=title_id)
+        title = get_object_or_404(Title, pk=title_id)
         if request.method == "Post":
             if Review.objects.filter(
                 title=title, author=request.user,
@@ -81,13 +73,18 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class TitleSerializer(serializers.ModelSerializer):
+    """Сериализатор произведений."""
+    genre = serializers.SlugRelatedField(
+        slug_field="slug",
+        many=True,
+        queryset=Genre.objects.all()
+    )
     class Meta:
         read_only_field = ("id",)
         fields = (
             "id",
             "name",
             "year",
-            "rating",
             "description",
             "genre",
             "category",
@@ -96,6 +93,7 @@ class TitleSerializer(serializers.ModelSerializer):
 
 
 class TitleReadSerializer(serializers.ModelSerializer):
+    """Сериализатор редактирование произведений."""
     category = CategorySerializer(read_only=True)
     genre = GenreSerializer(
         read_only=True,
