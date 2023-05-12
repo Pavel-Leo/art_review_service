@@ -83,3 +83,14 @@ class Command(BaseCommand):
                                               pub_date=pub_date)
                 self.stdout.write(self.style.SUCCESS(row))
             self.stdout.write(self.style.SUCCESS("Комментарии импортированы"))
+
+        with open("static/data/genre_title.csv", encoding='utf-8') as file:
+            reader = csv.DictReader(file)
+            for row in reader:
+                genre = get_object_or_404(Genre, id=row['genre_id'])
+                title = get_object_or_404(Title, id=row['title_id'])
+                title.genre.set([genre])
+                title.save()
+                self.stdout.write(self.style.SUCCESS(row))
+            self.stdout.write(self.style.SUCCESS(
+                "Жанры в произведения импортированы"))
