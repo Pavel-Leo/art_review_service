@@ -11,10 +11,11 @@ from core.models import Category, Comment, CustomUser, Genre, Review, Title
 
 class CommentSerializer(serializers.ModelSerializer):
     """Сериализатор комментариев."""
-    author = serializers.SlugRelatedField(slug_field="username", read_only=True)
+    author = serializers.SlugRelatedField(slug_field="username",
+                                          read_only=True)
     review = serializers.SlugRelatedField(
         slug_field="text",
-        read_only=True
+        read_only=True,
     )
 
     class Meta:
