@@ -3,7 +3,7 @@ import re
 
 from rest_framework.relations import SlugRelatedField
 from rest_framework.exceptions import ValidationError
-# from rest_framework.generics import get_object_or_404
+from rest_framework.generics import get_object_or_404
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 from core.models import Category, Comment, CustomUser, Genre, Review, Title
@@ -58,7 +58,7 @@ class ReviewSerializer(serializers.ModelSerializer):
     def validate(self, data):
         request = self.context["request"]
         title_id = self.context["view"].kwarg.get("title_id")
-        # title = get_object_or_404(Title, pk=title_id)
+        title = get_object_or_404(Title, pk=title_id)
         if request.method == "Post":
             if Review.objects.filter(
                 title=title, author=request.user
