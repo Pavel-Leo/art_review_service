@@ -35,8 +35,9 @@ from .filters import TitlesFilter
 class TitleViewSet(viewsets.ModelViewSet):
     # queryset = Title.objects.annotate(
     #     rating=Avg("rewiews__score")).order_by("-id")
+    queryset = Title.objects.all().order_by("-id")
     serializer_class = TitleSerializer
-    permission_classes = (IsAdminModeratorOwnerOrReadOnly)
+    permission_classes = (IsAdminModeratorOwnerOrReadOnly,)
     filter_backends = [DjangoFilterBackend]
     filterset_class = TitlesFilter
 
@@ -48,7 +49,7 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = (IsAdminModeratorOwnerOrReadOnly)
+    permission_classes = (IsAdminModeratorOwnerOrReadOnly,)
 
     def get_queryset(self):
         review = get_object_or_404(Review, pk=self.kwargs.get("review_id"))
@@ -57,14 +58,14 @@ class CommentViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         review = get_object_or_404(Review,
                                    id=self.kwargs.get("review_id"),
-                                   title_id=self.kwargs.get("title_id")
+                                   title_id=self.kwargs.get("title_id"),
                                    )
         serializer.save(author=self.request.user, review=review)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = (IsAdminModeratorOwnerOrReadOnly)
+    permission_classes = (IsAdminModeratorOwnerOrReadOnly,)
 
     def get_queryset(self):
         title = get_object_or_404(Title, pk=self.kwargs.get("title_id"))
