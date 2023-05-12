@@ -81,9 +81,6 @@ class ReviewViewSet(viewsets.ModelViewSet):
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    lookup_field = "slug"
-    filter_backends = (SearchFilter,)
-    search_fields = ("name",)
 
 
 class GenreViewSet(viewsets.ModelViewSet):
