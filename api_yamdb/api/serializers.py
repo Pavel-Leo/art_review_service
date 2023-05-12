@@ -35,7 +35,8 @@ class CommentSerializer(serializers.ModelSerializer):
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
-        fields = ("name", "slug")
+        read_only_field = ("id",)
+        fields = ("id", "name", "slug")
         model = Category
 
 
@@ -68,7 +69,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         # title = get_object_or_404(Title, pk=title_id)
         if request.method == "Post":
             if Review.objects.filter(
-                title=title, author=request.user
+                title=title, author=request.user,
             ).exists():
                 raise ValidationError("Можно написать только один отзыв.")
             return data

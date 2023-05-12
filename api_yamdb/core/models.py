@@ -63,7 +63,7 @@ class Category(models.Model):
         verbose_name_plural = 'категории'
 
     def __str__(self) -> str:
-        return self.name
+        return self.slug
 
 
 class Genre(models.Model):
@@ -88,21 +88,23 @@ class Title(models.Model):
         max_length=256,
     )
     year = models.PositiveIntegerField("год выпуска")
-    description = models.TextField("описание произведения")
-    rating = models.PositiveIntegerField(
+    description = models.TextField("описание произведения",
+                                   blank=True)
+    rating = models.FloatField(
         "рейтинг на основе отзывов",
         blank=True,
+        null=True,
     )
     genre = models.ManyToManyField(
         Genre,
         related_name="titles",
+        blank=True,
     )
     category = models.ForeignKey(
         Category,
         related_name="category",
         on_delete=models.SET_NULL,
         null=True,
-        blank=True,
     )
 
 
@@ -117,6 +119,7 @@ class Review(models.Model):
         CustomUser,
         on_delete=models.CASCADE,
         related_name="reviews",
+        null=True,
     )
     title = models.ForeignKey(
         Title,
@@ -124,6 +127,7 @@ class Review(models.Model):
         related_name="reviews",
     )
     score = models.PositiveSmallIntegerField(
+        null=True,
         validators=[
             MaxValueValidator(10),
             MinValueValidator(0),
