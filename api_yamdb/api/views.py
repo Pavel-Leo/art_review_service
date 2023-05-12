@@ -160,7 +160,7 @@ class Signup(APIView):
             from_email="from@example.com",
             recipient_list=[email],
             fail_silently=False,
-        )
+        ),
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
