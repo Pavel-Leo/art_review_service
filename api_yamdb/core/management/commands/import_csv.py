@@ -1,9 +1,9 @@
-from django.core.management.base import BaseCommand, CommandParser
+from django.core.management.base import BaseCommand
 import csv
 
 from django.shortcuts import get_object_or_404
 
-from core.models import Title, Category, Comment, Genre, Review, CustomUser
+from reviews.models import Title, Category, Comment, Genre, Review, CustomUser
 
 
 
