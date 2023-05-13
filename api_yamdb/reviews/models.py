@@ -98,7 +98,6 @@ class Title(models.Model):
         "год выпуска",
         blank=True,
         validators=[MaxValueValidator(int(datetime.now().year))],
-        # validators=(validate_year,),
     )
     description = models.TextField(
         "описание произведения", blank=True, null=True
@@ -112,12 +111,12 @@ class Title(models.Model):
         related_name="category",
         on_delete=models.SET_NULL,
         null=True,
-        blank=True,
     )
 
     class Meta:
-        verbose_name = "Произведение"
-        verbose_name_plural = "Произведения"
+        verbose_name = 'Произведение'
+        verbose_name_plural = 'Произведения'
+        ordering = ["name"]
 
     def __str__(self):
         return self.name
@@ -136,6 +135,7 @@ class Review(models.Model):
         CustomUser,
         on_delete=models.CASCADE,
         related_name="reviews",
+        null=True,
     )
     score = models.PositiveSmallIntegerField(
         validators=[

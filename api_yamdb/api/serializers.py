@@ -42,11 +42,11 @@ class ReviewSerializer(serializers.ModelSerializer):
     )
 
     def validate(self, review):
-        user_review_exists = Review.objects.filter(
+        review_already_exists = Review.objects.filter(
             author=self.context.get("request").user,
             title=self.context["view"].kwargs.get("title_id"),
         ).exists()
-        if self.instance is None and user_review_exists:
+        if self.instance is None and review_already_exists:
             raise serializers.ValidationError(
                 "Отзыв пользователя уже существует"
             )
