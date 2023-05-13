@@ -11,10 +11,11 @@ from core.models import Category, Comment, CustomUser, Genre, Review, Title
 
 class CommentSerializer(serializers.ModelSerializer):
     """Сериализатор комментариев."""
-    author = serializers.SlugRelatedField(slug_field="username", read_only=True)
+    author = serializers.SlugRelatedField(slug_field="username",
+                                          read_only=True)
     review = serializers.SlugRelatedField(
         slug_field="text",
-        read_only=True
+        read_only=True,
     )
 
     class Meta:
@@ -61,7 +62,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         title = get_object_or_404(Title, pk=title_id)
         if request.method == "Post":
             if Review.objects.filter(
-                title=title, author=request.user
+                title=title, author=request.user,
             ).exists():
                 raise ValidationError("Можно написать только один отзыв.")
             return data
