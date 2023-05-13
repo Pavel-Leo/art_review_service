@@ -1,16 +1,22 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
-from django.db.models import Avg
 from django.db import IntegrityError
-from django_filters.rest_framework import DjangoFilterBackend
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
+from rest_framework.mixins import (
+    CreateModelMixin,
+    DestroyModelMixin,
+    ListModelMixin,
+)
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.viewsets import GenericViewSet
 from rest_framework_simplejwt.tokens import AccessToken
 
 from api.serializers import (
@@ -21,23 +27,24 @@ from api.serializers import (
     NotAdminUserSerializer,
     ReviewSerializer,
     SignupSerializer,
+    TitleReadSerializer,
     TitleSerializer,
     TokenSerializer,
-    TitleReadSerializer
 )
-from core.models import Category, Comment, CustomUser, Genre, Review, Title
+from reviews.models import Category, CustomUser, Genre, Review, Title
 
-from .permissions import (IsAdminModeratorOwnerOrReadOnly,
-                          IsAdminPermission, IsAdminOrReadOnly)
 from .filters import TitlesFilter
+from .permissions import (
+    IsAdminModeratorOwnerOrReadOnly,
+    IsAdminOrReadOnly,
+    IsAdminPermission,
+)
 
 
 class TitleViewSet(viewsets.ModelViewSet):
     """Вьюсет получения списка всех произведений."""
-    queryset = (
-        Title.objects.all().annotate(Avg('reviews__score')).order_by("name")
-    )
-    serializer_class = TitleSerializer
+
+    queryset = Title.objects.annotate(rating=Avg("reviews__score")).all()
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = [DjangoFilterBackend]
     filterset_class = TitlesFilter
@@ -50,6 +57,7 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     """Вьюсет для комментариев"""
+
     serializer_class = CommentSerializer
     permission_classes = (IsAdminModeratorOwnerOrReadOnly,)
 
@@ -59,25 +67,22 @@ class CommentViewSet(viewsets.ModelViewSet):
         return review.comments.all()
 
     def perform_create(self, serializer):
+        title_id = self.kwargs.get("title_id")
         review_id = self.kwargs.get("review_id")
-        review = get_object_or_404(Review, pk=review_id)
+        review = get_object_or_404(Review, id=review_id, title=title_id)
         serializer.save(author=self.request.user, review=review)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
     """Вьюсет для отзывов"""
+
     serializer_class = ReviewSerializer
     permission_classes = (IsAdminModeratorOwnerOrReadOnly,)
 
-    def get_serializer_context(self):
-        context = super(ReviewViewSet, self).get_serializer_context()
-        title = get_object_or_404(Title, id=self.kwargs.get("title_id"))
-        context.update({"title": title})
-        return context
     def get_queryset(self):
         title_id = self.kwargs.get("title_id")
         title = get_object_or_404(Title, pk=title_id)
-        return title.review.all()
+        return title.reviews.all()
 
     def perform_create(self, serializer):
         title_id = self.kwargs.get("title_id")
@@ -86,11 +91,16 @@ class ReviewViewSet(viewsets.ModelViewSet):
             id=title_id,
         )
         serializer.save(author=self.request.user, title=title)
-        return title.reviews.all()
 
 
-class CategoryViewSet(viewsets.ModelViewSet):
+class CategoryViewSet(
+    CreateModelMixin,
+    ListModelMixin,
+    DestroyModelMixin,
+    GenericViewSet,
+):
     """Вьюсет для получения всех категорий."""
+
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = (IsAdminOrReadOnly,)
@@ -99,9 +109,14 @@ class CategoryViewSet(viewsets.ModelViewSet):
     lookup_field = "slug"
 
 
-
-class GenreViewSet(viewsets.ModelViewSet):
+class GenreViewSet(
+    CreateModelMixin,
+    ListModelMixin,
+    DestroyModelMixin,
+    GenericViewSet,
+):
     """Вьюсет для получения всех жанров."""
+
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     permission_classes = (IsAdminOrReadOnly,)
@@ -153,7 +168,7 @@ class CustomUserViewSet(viewsets.ModelViewSet):
 
 
 class Signup(APIView):
-    """Регистрация пользователя"""
+    """Регистрация пользователя с отправкой сообщения кода пользователю."""
 
     permission_classes = (AllowAny,)
 
@@ -171,7 +186,8 @@ class Signup(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
         user = get_object_or_404(
-            CustomUser, username=serializer.data["username"],
+            CustomUser,
+            username=serializer.data["username"],
         )
         confirmation_code = default_token_generator.make_token(user)
         email = serializer.data["email"]
@@ -186,7 +202,7 @@ class Signup(APIView):
 
 
 class Token(APIView):
-    """Получение токена."""
+    """Получение токена пользователем для регистрации."""
 
     permission_classes = (AllowAny,)
 
@@ -194,14 +210,19 @@ class Token(APIView):
         serializer = TokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = get_object_or_404(
-            CustomUser, username=serializer.data["username"],
+            CustomUser,
+            username=serializer.data["username"],
         )
         if default_token_generator.check_token(
-            user, serializer.data["confirmation_code"],
+            user,
+            serializer.data["confirmation_code"],
         ):
             token = AccessToken.for_user(user)
-            return Response({"token": str(token)}, status=status.HTTP_200_OK)
+            return Response(
+                "Ваш токен " + str(token), status=status.HTTP_200_OK
+            )
         else:
             return Response(
-                "Неверный код", status=status.HTTP_400_BAD_REQUEST,
+                "Неверный код",
+                status=status.HTTP_400_BAD_REQUEST,
             )

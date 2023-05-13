@@ -29,9 +29,10 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "rest_framework.authtoken",
+    "core.apps.CoreConfig",
     "api.apps.ApiConfig",
     "reviews.apps.ReviewsConfig",
-    "core.apps.CoreConfig",
+
 ]
 
 MIDDLEWARE = [
@@ -72,7 +73,7 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
-    }
+    },
 }
 
 
@@ -117,7 +118,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 10,
 }
 
@@ -126,7 +127,7 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
-AUTH_USER_MODEL = "core.CustomUser"
+AUTH_USER_MODEL = "reviews.CustomUser"
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
