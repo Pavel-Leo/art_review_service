@@ -1,101 +1,84 @@
 import re
 
-
-from rest_framework.exceptions import ValidationError
-from rest_framework.generics import get_object_or_404
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 from rest_framework.validators import UniqueValidator
 
-from core.models import Category, Comment, CustomUser, Genre, Review, Title
+from reviews.models import Category, Comment, CustomUser, Genre, Review, Title
 
 
 class CommentSerializer(serializers.ModelSerializer):
     """Сериализатор комментариев."""
-    author = serializers.SlugRelatedField(slug_field="username",
-                                          read_only=True)
-    review = serializers.SlugRelatedField(
-        slug_field="text",
-        read_only=True,
+
+    author = serializers.SlugRelatedField(
+        slug_field="username", read_only=True
     )
 
     class Meta:
-        fields = ("text", "author", "pub_date", "id", "review")
         model = Comment
+        fields = ("text", "author", "pub_date", "id")
 
 
 class CategorySerializer(serializers.ModelSerializer):
+    """Сериализатор категорий произведений."""
     class Meta:
-        exclude = ("id",)
-        lookup_field = "slug"
         model = Category
-        extra_kwargs = {"url": {"lookup_field": "slug"}}
+        fields = ("name", "slug")
 
 
 class GenreSerializer(serializers.ModelSerializer):
+    """Сериализатор жанров произведений."""
     class Meta:
-        exclude = ("id",)
-        lookup_field = "slug"
         model = Genre
+        fields = ("name", "slug")
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-    """Сериализатор отзывов """
+    """Сериализатор отзывов"""
+
     author = serializers.SlugRelatedField(
         slug_field="username",
         read_only=True,
-        default=serializers.CurrentUserDefault(),
-    )
-    title = serializers.SlugRelatedField(
-        slug_field='name',
-        read_only=True,
     )
 
-    def validate_score(self, value):
-        if 0 > value > 10:
+    def validate(self, review):
+        review_already_exists = Review.objects.filter(
+            author=self.context.get("request").user,
+            title=self.context["view"].kwargs.get("title_id"),
+        ).exists()
+        if self.instance is None and review_already_exists:
             raise serializers.ValidationError(
-                "Рейтинг произведения по 10-бальной шкале."
+                "Отзыв пользователя уже существует"
             )
-
-    def validate(self, data):
-        request = self.context["request"]
-        title_id = self.context["view"].kwarg.get("title_id")
-        title = get_object_or_404(Title, pk=title_id)
-        if request.method == "Post":
-            if Review.objects.filter(
-                title=title, author=request.user,
-            ).exists():
-                raise ValidationError("Можно написать только один отзыв.")
-            return data
+        return review
 
     class Meta:
-        read_only_fields = ("pub_date", "author", "id")
-        fields = ("id", "author", "title", "text", "score", "pub_date")
+        fields = ("id", "author", "text", "score", "pub_date")
         model = Review
 
 
 class TitleSerializer(serializers.ModelSerializer):
-    """Сериализатор произведений."""
+    """Сериализатор редактирования произведений."""
+
+    category = serializers.SlugRelatedField(
+        queryset=Category.objects.all(),
+        slug_field="slug",
+    )
     genre = serializers.SlugRelatedField(
+        queryset=Genre.objects.all(),
         slug_field="slug",
         many=True,
-        queryset=Genre.objects.all()
     )
+
     class Meta:
-        read_only_field = ("id",)
-        fields = (
-            "id",
-            "name",
-            "year",
-            "description",
-            "genre",
-            "category",
-        )
+        fields = "__all__"
         model = Title
 
 
 class TitleReadSerializer(serializers.ModelSerializer):
-    """Сериализатор редактирование произведений."""
-    category = CategorySerializer(read_only=True)
+    """Сериализатор произведений."""
+
+    category = CategorySerializer()
     genre = GenreSerializer(
         read_only=True,
         many=True,
@@ -108,7 +91,7 @@ class TitleReadSerializer(serializers.ModelSerializer):
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
-    """Сериализатор пользователя"""
+    """Сериализатор пользователя."""
 
     username = serializers.CharField(
         required=True,
@@ -122,11 +105,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
         """Проверка имени пользователя на валидность данных."""
         if value.lower() == "me":
             raise ValidationError("Нельзя использовать имя 'me или ME'")
-        elif CustomUser.objects.filter(username=value).exists():
-            raise ValidationError(
-                "Пользователь с таким именем уже существует",
-            )
-        elif not re.match(r"^[\w.@+-]+\Z", value):
+        if not re.match(r"^[\w.@+-]+\Z", value):
             error = (
                 "Имя пользователя должно содержать только буквы, цифры и "
                 "символы '@', '.', '+', '-'"
@@ -181,22 +160,14 @@ class NotAdminUserSerializer(serializers.ModelSerializer):
 
 
 class TokenSerializer(serializers.Serializer):
-    """Сериализатор токена."""
+    """Сериализатор получения токена."""
 
-    username = serializers.CharField(required=True, max_length=150)
+    username = serializers.CharField(required=True)
     confirmation_code = serializers.CharField(required=True)
 
     class Meta:
         fields = ("username", "confirmation_code")
         model = CustomUser
-
-    def validate(self, data):
-        username = data.get("username")
-        confirmation_code = data.get("confirmation_code")
-
-        if not username or not confirmation_code:
-            raise serializers.ValidationError("Некорректные данные")
-        return data
 
 
 class SignupSerializer(serializers.ModelSerializer):
@@ -220,5 +191,3 @@ class SignupSerializer(serializers.ModelSerializer):
             )
             raise serializers.ValidationError(error)
         return value
-
-    # проверка
