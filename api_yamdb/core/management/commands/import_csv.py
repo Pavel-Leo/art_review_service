@@ -42,7 +42,7 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.SUCCESS(row))
             self.stdout.write(self.style.SUCCESS("Произведения импортированы"))
 
-        with open("static/users.csv", encoding='utf-8') as file:
+        with open("static/data/users.csv", encoding='utf-8') as file:
             reader = csv.DictReader(file)
             for row in reader:
                 id = row['id']
