@@ -134,11 +134,6 @@ class Review(models.Model):
         related_name="reviews",
         null=True,
     )
-    title = models.ForeignKey(
-        Title,
-        on_delete=models.CASCADE,
-        related_name="reviews",
-    )
     score = models.PositiveSmallIntegerField(
         null=True,
         validators=[
