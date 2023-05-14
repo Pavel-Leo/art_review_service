@@ -44,7 +44,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         read_only=True,
     )
 
-    def validate(self, review: Review) -> Review:
+    def validate(self: any, review: Review) -> Review:
         review_already_exists = Review.objects.filter(
             author=self.context.get("request").user,
             title=self.context["view"].kwargs.get("title_id"),
@@ -104,14 +104,14 @@ class CustomUserSerializer(serializers.ModelSerializer):
         ],
     )
 
-    def validate_username(self, value: str) -> str:
+    def validate_username(self: any, value: str) -> str:
         """Проверка имени пользователя на валидность данных."""
         if value.lower() == "me":
-            raise ValidationError("Нельзя использовать имя 'me или ME'")
+            raise ValidationError('Нельзя использовать имя "me" или "ME"')
         if not re.match(r"^[\w.@+-]+\Z", value):
             error = (
                 "Имя пользователя должно содержать только буквы, цифры и "
-                "символы '@', '.', '+', '-'"
+                'символы "@", ".", "_", "+", "-"'
             )
             raise ValidationError(error)
         return value
@@ -145,10 +145,10 @@ class NotAdminUserSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ("role",)
 
-    def validate_username(self, value: str) -> str:
+    def validate_username(self: any, value: str) -> str:
         """Проверка имени пользователя на валидность данных."""
         if value.lower() == "me":
-            raise ValidationError("Нельзя использовать имя 'me или ME'")
+            raise ValidationError('Нельзя использовать имя "me" или "ME"')
         elif CustomUser.objects.filter(username=value).exists():
             raise ValidationError(
                 "Пользователь с таким именем уже существует",
@@ -156,7 +156,7 @@ class NotAdminUserSerializer(serializers.ModelSerializer):
         elif not re.match(r"^[\w.@+-]+\Z", value):
             error = (
                 "Имя пользователя должно содержать только буквы, цифры и "
-                "символы '@', '.', '+', '-'"
+                'символы "@", ".", "+", "-"'
             )
             raise ValidationError(error)
         return value
@@ -183,14 +183,16 @@ class SignupSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = ("username", "email")
 
-    def validate_username(self, value: str) -> str:
+    def validate_username(self: any, value: str) -> str:
         """Проверка имени пользователя на валидность данных."""
         if value.lower() == "me":
-            raise serializers.ValidationError("Нельзя использовать имя 'me'")
+            raise serializers.ValidationError(
+                'Нельзя использовать имя "me" или "ME"',
+            )
         elif not re.match(r"^[\w.@+-]+\Z", value):
             error = (
                 "Имя пользователя должно содержать только буквы, цифры и "
-                "символы '@', '.', '+', '-'"
+                'символы "@", ".", "+", "-"'
             )
             raise serializers.ValidationError(error)
         return value
