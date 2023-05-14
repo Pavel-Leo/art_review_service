@@ -11,13 +11,13 @@ class CommentSerializer(serializers.ModelSerializer):
     """Сериализатор комментариев."""
 
     author = serializers.SlugRelatedField(
-        slug_field="username",
+        slug_field='username',
         read_only=True,
     )
 
     class Meta:
         model = Comment
-        fields = ("text", "author", "pub_date", "id")
+        fields = ('text', 'author', 'pub_date', 'id')
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -25,7 +25,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ("name", "slug")
+        fields = ('name', 'slug')
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -33,30 +33,30 @@ class GenreSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Genre
-        fields = ("name", "slug")
+        fields = ('name', 'slug')
 
 
 class ReviewSerializer(serializers.ModelSerializer):
     """Сериализатор отзывов"""
 
     author = serializers.SlugRelatedField(
-        slug_field="username",
+        slug_field='username',
         read_only=True,
     )
 
     def validate(self: any, review: Review) -> Review:
         review_already_exists = Review.objects.filter(
-            author=self.context.get("request").user,
-            title=self.context["view"].kwargs.get("title_id"),
+            author=self.context.get('request').user,
+            title=self.context['view'].kwargs.get('title_id'),
         ).exists()
         if self.instance is None and review_already_exists:
             raise serializers.ValidationError(
-                "Отзыв пользователя уже существует",
+                'Отзыв пользователя уже существует',
             )
         return review
 
     class Meta:
-        fields = ("id", "author", "text", "score", "pub_date")
+        fields = ('id', 'author', 'text', 'score', 'pub_date')
         model = Review
 
 
@@ -65,16 +65,16 @@ class TitleSerializer(serializers.ModelSerializer):
 
     category = serializers.SlugRelatedField(
         queryset=Category.objects.all(),
-        slug_field="slug",
+        slug_field='slug',
     )
     genre = serializers.SlugRelatedField(
         queryset=Genre.objects.all(),
-        slug_field="slug",
+        slug_field='slug',
         many=True,
     )
 
     class Meta:
-        fields = "__all__"
+        fields = '__all__'
         model = Title
 
 
@@ -89,7 +89,7 @@ class TitleReadSerializer(serializers.ModelSerializer):
     rating = serializers.IntegerField(read_only=True)
 
     class Meta:
-        fields = "__all__"
+        fields = '__all__'
         model = Title
 
 
@@ -106,11 +106,11 @@ class CustomUserSerializer(serializers.ModelSerializer):
 
     def validate_username(self: any, value: str) -> str:
         """Проверка имени пользователя на валидность данных."""
-        if value.lower() == "me":
+        if value.lower() == 'me':
             raise ValidationError('Нельзя использовать имя "me" или "ME"')
-        if not re.match(r"^[\w.@+-]+\Z", value):
+        if not re.match(r'^[\w.@+-]+\Z', value):
             error = (
-                "Имя пользователя должно содержать только буквы, цифры и "
+                'Имя пользователя должно содержать только буквы, цифры и '
                 'символы "@", ".", "_", "+", "-"'
             )
             raise ValidationError(error)
@@ -119,12 +119,12 @@ class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = (
-            "email",
-            "username",
-            "first_name",
-            "last_name",
-            "bio",
-            "role",
+            'email',
+            'username',
+            'first_name',
+            'last_name',
+            'bio',
+            'role',
         )
 
 
@@ -136,26 +136,26 @@ class NotAdminUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = (
-            "username",
-            "email",
-            "first_name",
-            "last_name",
-            "bio",
-            "role",
+            'username',
+            'email',
+            'first_name',
+            'last_name',
+            'bio',
+            'role',
         )
-        read_only_fields = ("role",)
+        read_only_fields = ('role',)
 
     def validate_username(self: any, value: str) -> str:
         """Проверка имени пользователя на валидность данных."""
-        if value.lower() == "me":
+        if value.lower() == 'me':
             raise ValidationError('Нельзя использовать имя "me" или "ME"')
         elif CustomUser.objects.filter(username=value).exists():
             raise ValidationError(
-                "Пользователь с таким именем уже существует",
+                'Пользователь с таким именем уже существует',
             )
-        elif not re.match(r"^[\w.@+-]+\Z", value):
+        elif not re.match(r'^[\w.@+-]+\Z', value):
             error = (
-                "Имя пользователя должно содержать только буквы, цифры и "
+                'Имя пользователя должно содержать только буквы, цифры и '
                 'символы "@", ".", "+", "-"'
             )
             raise ValidationError(error)
@@ -169,7 +169,7 @@ class TokenSerializer(serializers.Serializer):
     confirmation_code = serializers.CharField(required=True)
 
     class Meta:
-        fields = ("username", "confirmation_code")
+        fields = ('username', 'confirmation_code')
         model = CustomUser
 
 
@@ -181,18 +181,18 @@ class SignupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ("username", "email")
+        fields = ('username', 'email')
 
     def validate_username(self: any, value: str) -> str:
         """Проверка имени пользователя на валидность данных."""
-        if value.lower() == "me":
+        if value.lower() == 'me':
             raise serializers.ValidationError(
                 'Нельзя использовать имя "me" или "ME"',
             )
-        elif not re.match(r"^[\w.@+-]+\Z", value):
+        elif not re.match(r'^[\w.@+-]+\Z', value):
             error = (
-                "Имя пользователя должно содержать только буквы, цифры и "
-                'символы "@", ".", "+", "-"'
+                'Имя пользователя должно содержать только буквы, цифры и '
+                'символы "@", ".", "+"", "-"'
             )
             raise serializers.ValidationError(error)
         return value
