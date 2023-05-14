@@ -2,6 +2,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.db import IntegrityError
 from django.db.models import Avg
+from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
@@ -31,7 +32,7 @@ from api.serializers import (
     TitleSerializer,
     TokenSerializer,
 )
-from reviews.models import Category, CustomUser, Genre, Review, Title
+from reviews.models import Category, Comment, CustomUser, Genre, Review, Title
 
 from .filters import TitlesFilter
 from .permissions import (
@@ -49,7 +50,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filterset_class = TitlesFilter
 
-    def get_serializer_class(self):
+    def get_serializer_class(self) -> TitleSerializer:
         if self.action in ("list", "retrieve"):
             return TitleReadSerializer
         return TitleSerializer
@@ -61,12 +62,12 @@ class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     permission_classes = (IsAdminModeratorOwnerOrReadOnly,)
 
-    def get_queryset(self):
+    def get_queryset(self) -> list[Comment]:
         review_id = self.kwargs.get("review_id")
         review = get_object_or_404(Review, pk=review_id)
         return review.comments.all()
 
-    def perform_create(self, serializer):
+    def perform_create(self, serializer: CommentSerializer) -> None:
         title_id = self.kwargs.get("title_id")
         review_id = self.kwargs.get("review_id")
         review = get_object_or_404(Review, id=review_id, title=title_id)
@@ -79,12 +80,12 @@ class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     permission_classes = (IsAdminModeratorOwnerOrReadOnly,)
 
-    def get_queryset(self):
+    def get_queryset(self) -> list[Review]:
         title_id = self.kwargs.get("title_id")
         title = get_object_or_404(Title, pk=title_id)
         return title.reviews.all()
 
-    def perform_create(self, serializer):
+    def perform_create(self, serializer: ReviewSerializer) -> None:
         title_id = self.kwargs.get("title_id")
         title = get_object_or_404(
             Title,
@@ -147,7 +148,7 @@ class CustomUserViewSet(viewsets.ModelViewSet):
             IsAuthenticated,
         ],
     )
-    def me(self, request):
+    def me(self, request: HttpRequest) -> Response:
         serializer = CustomUserSerializer(request.user)
         if request.method == "PATCH":
             if request.user.is_admin or request.user.is_superuser:
@@ -172,7 +173,7 @@ class Signup(APIView):
 
     permission_classes = (AllowAny,)
 
-    def post(self, request):
+    def post(self, request: HttpRequest) -> Response:
         serializer = SignupSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         try:
@@ -197,7 +198,7 @@ class Signup(APIView):
             from_email="from@example.com",
             recipient_list=[email],
             fail_silently=False,
-        ),
+        )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -206,7 +207,7 @@ class Token(APIView):
 
     permission_classes = (AllowAny,)
 
-    def post(self, request):
+    def post(self, request: HttpRequest) -> Response:
         serializer = TokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = get_object_or_404(
@@ -219,7 +220,8 @@ class Token(APIView):
         ):
             token = AccessToken.for_user(user)
             return Response(
-                "Ваш токен " + str(token), status=status.HTTP_200_OK
+                "Ваш токен " + str(token),
+                status=status.HTTP_200_OK,
             )
         else:
             return Response(

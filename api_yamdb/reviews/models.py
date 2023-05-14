@@ -44,11 +44,11 @@ class CustomUser(AbstractUser):
         verbose_name_plural = "пользователи"
 
     @property
-    def is_admin(self):
+    def is_admin(self) -> bool:
         return self.is_superuser or self.role == settings.CHOISES[2][0]
 
     @property
-    def is_moderator(self):
+    def is_moderator(self) -> bool:
         return self.role == settings.CHOISES[1][0]
 
 
@@ -100,7 +100,9 @@ class Title(models.Model):
         validators=[MaxValueValidator(int(datetime.now().year))],
     )
     description = models.TextField(
-        "описание произведения", blank=True, null=True
+        "описание произведения",
+        blank=True,
+        null=True,
     )
     genre = models.ManyToManyField(
         Genre,
@@ -114,11 +116,11 @@ class Title(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Произведение'
-        verbose_name_plural = 'Произведения'
+        verbose_name = "Произведение"
+        verbose_name_plural = "Произведения"
         ordering = ["name"]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
@@ -158,7 +160,7 @@ class Review(models.Model):
         ]
         ordering = ["-pub_date"]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.text
 
 

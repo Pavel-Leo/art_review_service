@@ -11,7 +11,8 @@ class CommentSerializer(serializers.ModelSerializer):
     """Сериализатор комментариев."""
 
     author = serializers.SlugRelatedField(
-        slug_field="username", read_only=True
+        slug_field="username",
+        read_only=True,
     )
 
     class Meta:
@@ -21,6 +22,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
 class CategorySerializer(serializers.ModelSerializer):
     """Сериализатор категорий произведений."""
+
     class Meta:
         model = Category
         fields = ("name", "slug")
@@ -28,6 +30,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class GenreSerializer(serializers.ModelSerializer):
     """Сериализатор жанров произведений."""
+
     class Meta:
         model = Genre
         fields = ("name", "slug")
@@ -41,14 +44,14 @@ class ReviewSerializer(serializers.ModelSerializer):
         read_only=True,
     )
 
-    def validate(self, review):
+    def validate(self, review: Review) -> Review:
         review_already_exists = Review.objects.filter(
             author=self.context.get("request").user,
             title=self.context["view"].kwargs.get("title_id"),
         ).exists()
         if self.instance is None and review_already_exists:
             raise serializers.ValidationError(
-                "Отзыв пользователя уже существует"
+                "Отзыв пользователя уже существует",
             )
         return review
 
@@ -101,7 +104,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
         ],
     )
 
-    def validate_username(self, value):
+    def validate_username(self, value: str) -> str:
         """Проверка имени пользователя на валидность данных."""
         if value.lower() == "me":
             raise ValidationError("Нельзя использовать имя 'me или ME'")
@@ -142,7 +145,7 @@ class NotAdminUserSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ("role",)
 
-    def validate_username(self, value):
+    def validate_username(self, value: str) -> str:
         """Проверка имени пользователя на валидность данных."""
         if value.lower() == "me":
             raise ValidationError("Нельзя использовать имя 'me или ME'")
@@ -180,7 +183,7 @@ class SignupSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = ("username", "email")
 
-    def validate_username(self, value):
+    def validate_username(self, value: str) -> str:
         """Проверка имени пользователя на валидность данных."""
         if value.lower() == "me":
             raise serializers.ValidationError("Нельзя использовать имя 'me'")
