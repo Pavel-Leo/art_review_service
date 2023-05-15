@@ -1,34 +1,26 @@
-from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+
+
+class UserRole(models.TextChoices):
+    USER = ('user', 'Пользователь')
+    MODERATOR = ('moderator', 'Модератор')
+    ADMIN = ('admin', 'Администратор')
 
 
 class CustomUser(AbstractUser):
     """Модель пользователя"""
 
-    email = models.EmailField(
+    email = models.EmailField(  # переопределения поля нужно по pytest
         'адрес электронной почты',
         max_length=254,
         unique=True,
     )
-    username = models.CharField(
-        'имя пользователя',
-        max_length=150,
-        unique=True,
-        null=False,
-    )
-    first_name = models.CharField('имя', max_length=150, blank=True, null=True)
-    last_name = models.CharField(
-        'фамилия',
-        max_length=150,
-        blank=True,
-        null=True,
-    )
     bio = models.TextField('биография', blank=True)
     role = models.CharField(
         'роль пользователя',
-        choices=settings.CHOISES,
-        default=settings.CHOISES[0][0],
+        choices=UserRole.choices,
+        default=UserRole.USER,
         max_length=20,
     )
 
@@ -42,8 +34,8 @@ class CustomUser(AbstractUser):
 
     @property
     def is_admin(self: 'CustomUser') -> bool:
-        return self.is_superuser or self.role == settings.CHOISES[2][0]
+        return self.is_superuser or self.role == UserRole.ADMIN
 
     @property
     def is_moderator(self: 'CustomUser') -> bool:
-        return self.role == settings.CHOISES[1][0]
+        return self.role == UserRole.MODERATOR
