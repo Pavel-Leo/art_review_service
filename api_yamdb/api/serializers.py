@@ -4,7 +4,8 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.validators import UniqueValidator
 
-from reviews.models import Category, Comment, CustomUser, Genre, Review, Title
+from reviews.models import Category, Comment, Genre, Review, Title
+from users.models import CustomUser
 
 
 class CommentSerializer(serializers.ModelSerializer):

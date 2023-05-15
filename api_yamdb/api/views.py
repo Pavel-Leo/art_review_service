@@ -32,7 +32,8 @@ from api.serializers import (
     TitleSerializer,
     TokenSerializer,
 )
-from reviews.models import Category, Comment, CustomUser, Genre, Review, Title
+from reviews.models import Category, Comment, Genre, Review, Title
+from users.models import CustomUser
 
 from .filters import TitlesFilter
 from .permissions import (
