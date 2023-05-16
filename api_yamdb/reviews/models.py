@@ -6,39 +6,37 @@ from django.db import models
 from users.models import CustomUser
 
 
-class Category(models.Model):
-    """Модель категория произведения."""
+class CommonAbstact(models.Model):
+    """Модель абстрактного класса для категории и жанра."""
 
-    name = models.CharField('название категории', max_length=256)
+    name = models.CharField('название', max_length=256)
     slug = models.SlugField(
-        'идентификатор категории',
-        unique=True,
-    )
-
-    class Meta:
-        verbose_name = 'категория'
-        verbose_name_plural = 'категории'
-
-    def __str__(self: 'Category') -> str:
-        return self.slug
-
-
-class Genre(models.Model):
-    """Модель жанра произведения."""
-
-    name = models.CharField('название жанра', max_length=256)
-    slug = models.SlugField(
-        'идентификатор жанра',
+        'идентификатор',
         unique=True,
         max_length=50,
     )
 
     class Meta:
+        abstract = True
+
+    def __str__(self: any) -> str:
+        return self.name
+
+
+class Category(CommonAbstact):
+    """Модель категория произведения."""
+
+    class Meta:
+        verbose_name = 'категория'
+        verbose_name_plural = 'категории'
+
+
+class Genre(CommonAbstact):
+    """Модель жанра произведения."""
+
+    class Meta:
         verbose_name = 'жанр'
         verbose_name_plural = 'жанры'
-
-    def __str__(self: 'Genre') -> str:
-        return self.name
 
 
 class Title(models.Model):
