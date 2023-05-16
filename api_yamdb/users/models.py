@@ -19,6 +19,12 @@ class CustomUser(AbstractUser):
         default=UserRole.USER,
         max_length=20,
     )
+    first_name = models.CharField(
+        "имя", max_length=50, blank=True, null=True,
+    )
+    last_name = models.CharField(
+        "фамилия", max_length=50, blank=True, null=True,
+    )
 
     def __str__(self: "CustomUser") -> str:
         return self.username

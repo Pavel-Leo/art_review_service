@@ -56,7 +56,7 @@ class Title(models.Model):
         blank=True,
         null=True,
     )
-    genre = models.ManyToManyField(
+    genres = models.ManyToManyField(
         Genre,
         related_name='titles',
     )

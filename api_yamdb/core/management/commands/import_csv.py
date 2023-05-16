@@ -96,9 +96,9 @@ class Command(BaseCommand):
         with open('static/data/genre_title.csv', encoding='utf-8') as file:
             reader = csv.DictReader(file)
             for row in reader:
-                genre = get_object_or_404(Genre, id=row['genre_id'])
+                genres = get_object_or_404(Genre, id=row['genre_id'])
                 title = get_object_or_404(Title, id=row['title_id'])
-                title.genre.set([genre])
+                title.genres.set([genres])
                 title.save()
                 self.stdout.write(self.style.SUCCESS(row))
             self.stdout.write(

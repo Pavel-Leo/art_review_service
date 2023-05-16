@@ -37,13 +37,13 @@ class TitleAdmin(admin.ModelAdmin):
     search_fields = (
         "name",
         "year",
-        "genre",
+        "genres",
         "category",
     )
     list_filter = (
         "name",
         "year",
-        "genre",
+        "genres",
         "category",
     )
     empty_value_display = "-пусто-"
