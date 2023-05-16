@@ -12,11 +12,6 @@ class UserRole(models.TextChoices):
 class CustomUser(AbstractUser):
     """Модель пользователя"""
 
-    email = models.EmailField(  # переопределения поля нужно по pytest
-        "адрес электронной почты",
-        max_length=254,
-        unique=True,
-    )
     bio = models.TextField("биография", blank=True)
     role = models.CharField(
         "роль пользователя",
