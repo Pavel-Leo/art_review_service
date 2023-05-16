@@ -6,13 +6,11 @@ class IsAdminPermission(permissions.BasePermission):
     """Проверяет, имеет ли пользователь права администратора для запроса."""
 
     def has_permission(self: any, request: HttpRequest, view: any) -> bool:
-        del view
         return request.user.is_authenticated and request.user.is_admin
 
     def has_object_permission(
         self: any, request: HttpRequest, view: any, obj: any,
     ) -> bool:
-        del view, obj
         if request.user.is_authenticated:
             return (
                 request.user.is_admin
@@ -23,7 +21,6 @@ class IsAdminPermission(permissions.BasePermission):
 
 class IsAdminModeratorOwnerOrReadOnly(permissions.BasePermission):
     def has_permission(self: any, request: HttpRequest, view: any) -> bool:
-        del view
         return (
             request.method in permissions.SAFE_METHODS
             or request.user.is_authenticated
@@ -32,7 +29,6 @@ class IsAdminModeratorOwnerOrReadOnly(permissions.BasePermission):
     def has_object_permission(
         self: any, request: HttpRequest, view: any, obj: any,
     ) -> bool:
-        del view
         return (
             request.method in permissions.SAFE_METHODS
             or request.user.is_admin
@@ -43,7 +39,6 @@ class IsAdminModeratorOwnerOrReadOnly(permissions.BasePermission):
 
 class IsAdminOrReadOnly(permissions.BasePermission):
     def has_permission(self: any, request: HttpRequest, view: any) -> bool:
-        del view
         return request.method in permissions.SAFE_METHODS or (
             request.user.is_authenticated and request.user.is_admin
         )
