@@ -56,7 +56,7 @@ class Title(models.Model):
         blank=True,
         null=True,
     )
-    genre = models.ManyToManyField(
+    genre = models.ManyToManyField(  # поле genres не принимаются pytestом
         Genre,
         related_name='titles',
     )
@@ -72,7 +72,7 @@ class Title(models.Model):
         verbose_name_plural = 'Произведения'
         ordering = ['name']
 
-    def __str__(self: 'Title') -> str:
+    def __str__(self: any) -> str:
         return self.name
 
 
@@ -112,7 +112,7 @@ class Review(models.Model):
         ]
         ordering = ['-pub_date']
 
-    def __str__(self: 'Review') -> str:
+    def __str__(self: any) -> str:
         return self.text
 
 
@@ -139,5 +139,5 @@ class Comment(models.Model):
     class Meta:
         ordering = ['-pub_date']
 
-    def __str__(self: 'Comment') -> str:
+    def __str__(self: any) -> str:
         return self.text
