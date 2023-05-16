@@ -3,39 +3,47 @@ from django.db import models
 
 
 class UserRole(models.TextChoices):
-    USER = ('user', 'Пользователь')
-    MODERATOR = ('moderator', 'Модератор')
-    ADMIN = ('admin', 'Администратор')
+    USER = ("user", "Пользователь")
+    MODERATOR = ("moderator", "Модератор")
+    ADMIN = ("admin", "Администратор")
+    SUPERUSER = ("superuser", "Суперпользователь")
 
 
 class CustomUser(AbstractUser):
     """Модель пользователя"""
 
     email = models.EmailField(  # переопределения поля нужно по pytest
-        'адрес электронной почты',
+        "адрес электронной почты",
         max_length=254,
         unique=True,
     )
-    bio = models.TextField('биография', blank=True)
+    bio = models.TextField("биография", blank=True)
     role = models.CharField(
-        'роль пользователя',
+        "роль пользователя",
         choices=UserRole.choices,
         default=UserRole.USER,
         max_length=20,
     )
 
-    def __str__(self: 'CustomUser') -> str:
+    def __str__(self: "CustomUser") -> str:
         return self.username
 
     class Meta:
-        ordering = ['id']
-        verbose_name = 'пользователь'
-        verbose_name_plural = 'пользователи'
+        ordering = ["id"]
+        verbose_name = "пользователь"
+        verbose_name_plural = "пользователи"
 
     @property
-    def is_admin(self: 'CustomUser') -> bool:
+    def is_admin(self: "CustomUser") -> bool:
         return self.is_superuser or self.role == UserRole.ADMIN
 
+    def is_moderator_or_admin_or_superuser(self: "CustomUser") -> bool:
+        return (
+            self.is_admin
+            or self.is_moderator
+            or self.role == UserRole.SUPERUSER
+        )
+
     @property
-    def is_moderator(self: 'CustomUser') -> bool:
+    def is_moderator(self: "CustomUser") -> bool:
         return self.role == UserRole.MODERATOR
