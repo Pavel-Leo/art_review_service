@@ -1,9 +1,10 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
-from .validators import check_username
 from reviews.models import Category, Comment, Genre, Review, Title
 from users.models import CustomUser
+
+from .validators import check_username
 
 
 class CommentSerializer(serializers.ModelSerializer):
