@@ -189,7 +189,7 @@ class Signup(APIView):
         serializer = SignupSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         try:
-            CustomUser.objects.get_or_create(
+            user, _ = CustomUser.objects.get_or_create(
                 username=serializer.data.get('username'),
                 email=serializer.data.get('email'),
             )
@@ -198,10 +198,6 @@ class Signup(APIView):
                 f'Данные уже существуют: {str(e)}',
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        user = get_object_or_404(
-            CustomUser,
-            username=serializer.data['username'],
-        )
         confirmation_code = default_token_generator.make_token(user)
         email = serializer.data['email']
         send_mail(

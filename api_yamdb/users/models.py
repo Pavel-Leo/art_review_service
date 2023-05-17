@@ -19,17 +19,17 @@ class CustomUser(AbstractUser):
         default=UserRole.USER,
         max_length=20,
     )
-    email = models.EmailField(  # переопределен для проверки на уникальность
+    email = models.EmailField(
         'адрес электронной почты',
         max_length=254,
         unique=True,
     )
     first_name = models.CharField(
         'имя', max_length=150, blank=True, null=True,
-    )  # переопределен для корректного заполнения базы данных файлом import_csv
+    )
     last_name = models.CharField(
         'фамилия', max_length=150, blank=True, null=True,
-    )  # переопределен для корректного заполнения базы данных файлом import_csv
+    )
 
     def __str__(self: any) -> str:
         return self.username
