@@ -57,8 +57,8 @@ class ReviewSerializer(serializers.ModelSerializer):
         return review
 
     class Meta:
-        fields = ('id', 'author', 'text', 'score', 'pub_date')
         model = Review
+        fields = ('id', 'author', 'text', 'score', 'pub_date')
 
 
 class TitleSerializer(serializers.ModelSerializer):
@@ -75,9 +75,9 @@ class TitleSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
+        model = Title
         fields = ('id', 'name', 'year', 'description', 'genres',
                   'category')
-        model = Title
 
 
 class TitleReadSerializer(serializers.ModelSerializer):
@@ -91,9 +91,9 @@ class TitleReadSerializer(serializers.ModelSerializer):
     rating = serializers.IntegerField(read_only=True)
 
     class Meta:
+        model = Title
         fields = ('id', 'name', 'year', 'rating', 'description', 'genres',
                   'category')
-        model = Title
 
 
 class UsernameValidation:

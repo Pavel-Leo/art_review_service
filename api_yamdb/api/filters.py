@@ -9,7 +9,7 @@ class TitlesFilter(django_filters.FilterSet):
     """
 
     category = django_filters.CharFilter(field_name='category__slug')
-    genres = django_filters.CharFilter(field_name='genre__slug')
+    genres = django_filters.CharFilter(field_name='genres__slug')
     name = django_filters.CharFilter(
         field_name='name',
         lookup_expr='icontains',
