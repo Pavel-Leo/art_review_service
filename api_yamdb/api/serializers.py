@@ -1,7 +1,7 @@
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
 from rest_framework.validators import UniqueValidator
 
+from .validators import check_username
 from reviews.models import Category, Comment, Genre, Review, Title
 from users.models import CustomUser
 
@@ -98,13 +98,6 @@ class TitleReadSerializer(serializers.ModelSerializer):
             "category",
         )
         model = Title
-
-
-def check_username(value: str) -> str:
-    """Проверка имени пользователя на валидность данных."""
-    if value.lower() == "me":
-        raise ValidationError('Нельзя использовать имя "me" или "ME"')
-    return value
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
